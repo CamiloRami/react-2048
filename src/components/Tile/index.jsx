@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import { useGame } from '../../contexts/GameContext'
 
 export default function Tile({ position, value }) {
-  
   const [positionState, setPositionState] = useState({
     transform: `translate(${position[0] * 5}rem, ${position[1] * 5}rem)`,
   })
   
+  const [color, setColor] = useState('tile-2')
+
+
+
   const { game, motion } = useGame()
   
   useEffect(() => {
@@ -40,7 +43,7 @@ export default function Tile({ position, value }) {
   }, [motion, game.board, position])
   
   return (
-    <div className="bg-green-300 rounded-lg w-16 h-16 grid items-center text-4xl transition absolute" style={positionState}>
+    <div className="rounded-lg w-16 h-16 grid items-center text-4xl transition absolute" style={positionState}>
       <span className="mb-1">{value}</span>
     </div>
   )
