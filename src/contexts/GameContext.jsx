@@ -4,13 +4,14 @@ import utils from '../utils/utils'
 const GameContext = createContext()
 
 const {
+  putRandomValueInMatrix: putTile,
+  initializeBoard,
+  get2or4,
   getMatrixToRight,
   getMatrixToLeft,
   getMatrixToUp,
   getMatrixToDown,
-  putRandomValueInMatrix: putTile,
-  initializeBoard,
-  get2or4
+  sumEveryCell,
 } = utils
 
 const useGame = () => {
@@ -38,6 +39,7 @@ const GameProvider = ({ children }) => {
 
   const moveRight = (board) => {
     const [newBoard, steps] = getMatrixToRight(board)
+    if (sumEveryCell(steps) === 0) return null
     setMotion({ 
       isMoving: true,
       direction: 'right',
@@ -60,6 +62,7 @@ const GameProvider = ({ children }) => {
 
   const moveLeft = (board) => {
     const [newBoard, steps] = getMatrixToLeft(board)
+    if (sumEveryCell(steps) === 0) return null
     setMotion({ 
       isMoving: true, 
       direction: 'left',
@@ -82,6 +85,7 @@ const GameProvider = ({ children }) => {
 
   const moveUp = (board) => {
     const [newBoard, steps] = getMatrixToUp(board)
+    if (sumEveryCell(steps) === 0) return null
     setMotion({ 
       isMoving: true, 
       direction: 'up',
@@ -104,6 +108,7 @@ const GameProvider = ({ children }) => {
 
   const moveDown = (board) => {
     const [newBoard, steps] = getMatrixToDown(board)
+    if (sumEveryCell(steps) === 0) return null
     setMotion({ 
       isMoving: true, 
       direction: 'down',

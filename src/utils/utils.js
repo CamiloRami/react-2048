@@ -128,14 +128,21 @@ const getMatrixToDown = (matrix) => {
   return [rotatedMatrixR, stepsToMoveToDown]
 }
 
+const sumEveryCell = (matrix) => {
+  return matrix.reduce((acc, row) => {
+    return acc + row.reduce((acc, cell) => acc + cell, 0)
+  }, 0)
+}
+
 const utils = {
+  initializeBoard,
   putRandomValueInMatrix,
+  get2or4,
   getMatrixToRight,
   getMatrixToLeft,
   getMatrixToUp,
   getMatrixToDown,
-  get2or4,
-  initializeBoard,
+  sumEveryCell,
 }
 
 export default utils

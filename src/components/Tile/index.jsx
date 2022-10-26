@@ -11,6 +11,7 @@ export default function Tile({ position, value }) {
   
   useEffect(() => {
     if (motion.isMoving) {
+      console.log('motion', motion)
       if (motion.direction === 'right') {
         const newPosition = [position[0] + motion.steps[position[1]][position[0]], position[1]]
         setPositionState({
