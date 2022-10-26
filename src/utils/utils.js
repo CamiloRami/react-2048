@@ -1,6 +1,7 @@
 const putRandomValueInMatrix = (matrix, fnValue = Math.random()) => {
   const value = fnValue
-  const emptyPosition = matrix.reduce((acc, row, rowIndex) => {
+  const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
+  const emptyPosition = deepCopyMatrix.reduce((acc, row, rowIndex) => {
     row.forEach((cell, cellIndex) => {
       if (cell === 0) {
         acc.push({ rowIndex, cellIndex })
@@ -9,86 +10,132 @@ const putRandomValueInMatrix = (matrix, fnValue = Math.random()) => {
     return acc
   }, [])
   const randomPosition = emptyPosition[Math.floor(Math.random() * emptyPosition.length)]
-  matrix[randomPosition.rowIndex][randomPosition.cellIndex] = value
+  deepCopyMatrix[randomPosition.rowIndex][randomPosition.cellIndex] = value
+  return deepCopyMatrix
 }
 
-const moveEveryCellToRight = (matrix) => {
-  let newMatrix = matrix.map((row) => {
-    let newRow = row.filter((cell) => cell !== 0)
-    while (newRow.length < 4) {
-      newRow.unshift(0)
-    }
-    return newRow
-  })
-  return newMatrix
-}
-
-const moveEveryCellToLeft = (matrix) => {
-  let newMatrix = matrix.map((row) => {
-    let newRow = row.filter((cell) => cell !== 0)
-    while (newRow.length < 4) {
-      newRow.push(0)
-    }
-    return newRow
-  })
-  return newMatrix
-}
-
-const moveEveryCellToUp = (matrix) => {
-  let newMatrix = matrix.reduce(
-    (acc, row) => {
-      row.forEach((cell, cellIndex) => {
-        let i = 0
-        while (i < acc.length) {
-          if (acc[i][cellIndex] === 0) {
-            acc[i][cellIndex] = cell
-            break
-          }
-          i++
-        }
-      })
-      return acc
-    },
-    Array(4)
-      .fill(0)
-      .map(() => Array(4).fill(0))
+const rotateMatrix = (matrix, direction) => {
+  const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
+  const rotatedMatrix = deepCopyMatrix.map((row, rowIndex) =>
+    row.map((cell, cellIndex) => deepCopyMatrix[cellIndex][rowIndex])
   )
-  return newMatrix
-}
-
-const moveEveryCellToDown = (matrix) => {
-  let newMatrix = matrix.reverse().reduce(
-    (acc, row) => {
-      row.forEach((cell, cellIndex) => {
-        let i = 3
-        while (i >= 0) {
-          if (acc[i][cellIndex] === 0) {
-            acc[i][cellIndex] = cell
-            break
-          }
-          i--
-        }
-      })
-      return acc
-    },
-    Array(4)
-      .fill(0)
-      .map(() => Array(4).fill(0))
-  )
-  return newMatrix
+  if (direction === 'right') {
+    return rotatedMatrix.map((row) => row.reverse())
+  }
+  if (direction === 'left') {
+    return rotatedMatrix.reverse()
+  }
+  if (direction === 'down') {
+    return rotatedMatrix.reverse().map((row) => row.reverse())
+  }
+  return rotatedMatrix
 }
 
 const get2or4 = () => {
   return Math.random() < 0.8 ? 2 : 4
 }
 
+const initializeBoard = () => {
+  const board = Array(4)
+    .fill(0)
+    .map(() => Array(4).fill(0))
+  const matrixA = putRandomValueInMatrix(board, get2or4())
+  const matrixB = putRandomValueInMatrix(matrixA, get2or4())
+  return matrixB
+}
+
+const getMatrixToRight = (matrix) => {
+  const stepsToMoveToRight = []
+  const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
+  deepCopyMatrix.forEach((row, rowIndex) => {
+    const steps = Array(4).fill(0)
+    for (let i = row.length - 1; i >= 0; i--) {
+      const prevArr = matrix[rowIndex]
+      let prev
+      for (let j = i + 1; j < prevArr.length; j++) {
+        if (prevArr[j] !== 0) {
+          prev = prevArr[j]
+          break
+        }
+      }
+      if (row[i] === 0 || i === row.length - 1) continue
+      for (let j = 1; j <= row.length - 1 - i; j++) {
+        if (row[i + j] === 0) {
+          row[i + j] = row[i + j] + row[i + j - 1]
+          row[i + j - 1] = 0
+          steps[i]++
+        }
+        if (row[i + j] === row[i + j - 1] && prev === prevArr[i]) {
+          row[i + j] = row[i + j] + row[i + j - 1]
+          row[i + j - 1] = 0
+          steps[i]++
+          break
+        }
+      }
+    }
+    stepsToMoveToRight.push(steps)
+  })
+  return [deepCopyMatrix, stepsToMoveToRight]
+}
+
+const getMatrixToLeft = (matrix) => {
+  const stepsToMoveToLeft = []
+  const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
+  deepCopyMatrix.forEach((row, rowIndex) => {
+    const steps = Array(4).fill(0)
+    for (let i = 0; i < row.length; i++) {
+      const prevArr = matrix[rowIndex]
+      let prev
+      for (let j = i - 1; j >= 0; j--) {
+        if (prevArr[j] !== 0) {
+          prev = prevArr[j]
+          break
+        }
+      }
+      if (row[i] === 0 || i === 0) continue
+      for (let j = 1; j <= i; j++) {
+        if (row[i - j] === 0) {
+          row[i - j] = row[i - j] + row[i - j + 1]
+          row[i - j + 1] = 0
+          steps[i]++
+        }
+        if (row[i - j] === row[i - j + 1] && prev === prevArr[i]) {
+          row[i - j] = row[i - j] + row[i - j + 1]
+          row[i - j + 1] = 0
+          steps[i]++
+          break
+        }
+      }
+    }
+    stepsToMoveToLeft.push(steps)
+  })
+  return [deepCopyMatrix, stepsToMoveToLeft]
+}
+
+const getMatrixToUp = (matrix) => {
+  const rotatedMatrixR = rotateMatrix(matrix, 'right')
+  const [newMatrix, steps] = getMatrixToRight(rotatedMatrixR)
+  const rotatedMatrixL = rotateMatrix(newMatrix, 'left')
+  const stepsToMoveToUp = rotateMatrix(steps, 'left')
+  return [rotatedMatrixL, stepsToMoveToUp]
+}
+
+const getMatrixToDown = (matrix) => {
+  const rotatedMatrixL = rotateMatrix(matrix, 'left')
+  const [newMatrix, steps] = getMatrixToRight(rotatedMatrixL)
+  const rotatedMatrixR = rotateMatrix(newMatrix, 'right')
+  const stepsToMoveToDown = rotateMatrix(steps, 'right')
+  return [rotatedMatrixR, stepsToMoveToDown]
+}
+
 const utils = {
   putRandomValueInMatrix,
-  moveEveryCellToRight,
-  moveEveryCellToLeft,
-  moveEveryCellToUp,
-  moveEveryCellToDown,
+  getMatrixToRight,
+  getMatrixToLeft,
+  getMatrixToUp,
+  getMatrixToDown,
   get2or4,
+  initializeBoard,
 }
 
 export default utils

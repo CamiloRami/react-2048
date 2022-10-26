@@ -1,32 +1,24 @@
-import { useEffect, useCallback } from 'react'
-import { useGame } from '../../hooks/useGame'
+import { useEffect } from 'react'
+import { useGame } from '../../contexts/GameContext'
 import Tile from '../Tile'
 
 export default function Board() {
-  const { game, handlerKeyDown } = useGame()
-  console.log('render')
-
-  const handleKeyDown = useCallback((event) => {
-    handlerKeyDown(event, game.board)
-  }, [game.board])
+  const { game } = useGame()
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
+    console.log(game.board)
   }, [game.board])
 
-  useEffect(() => {
-    console.log('board', game.board)
-  }, [game])
-
-  return <>
-    { game && game.board.map((row, rowIndex) => {
+  const renderBoard = () => {
+    return game.board.map((row, rowIndex) => {
       return row.map((value, colIndex) => {
-        return <Tile key={`${colIndex}-${rowIndex}`} position={[colIndex, rowIndex]} value={value} />
+        if (value === 0) return null
+        return <Tile key={Math.random()} position={[colIndex, rowIndex]} value={value}/>
       })
     })
-    } 
+  }
+
+  return <>
+    { game && renderBoard() } 
   </>
 }
