@@ -22,7 +22,7 @@ const useGame = () => {
   return context
 }
 
-const ANIMATION_DURATION = 200
+const ANIMATION_DURATION = 160
 
 const GameProvider = ({ children }) => {
   const [game, setGame] = useState({

@@ -16,19 +16,15 @@ const putRandomValueInMatrix = (matrix, fnValue = Math.random()) => {
 
 const rotateMatrix = (matrix, direction) => {
   const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
-  const rotatedMatrix = deepCopyMatrix.map((row, rowIndex) =>
-    row.map((cell, cellIndex) => deepCopyMatrix[cellIndex][rowIndex])
-  )
   if (direction === 'right') {
-    return rotatedMatrix.map((row) => row.reverse())
+      const rotatedMatrix = deepCopyMatrix[0].map((_, i) => deepCopyMatrix.map((row) => row[i]))
+      return rotatedMatrix.map((row) => row.reverse())
   }
   if (direction === 'left') {
-    return rotatedMatrix.reverse()
+      const rotatedMatrix = deepCopyMatrix[0].map((_, i) => deepCopyMatrix.map((row) => row[i]))
+      return rotatedMatrix.reverse()
   }
-  if (direction === 'down') {
-    return rotatedMatrix.reverse().map((row) => row.reverse())
-  }
-  return rotatedMatrix
+  return deepCopyMatrix
 }
 
 const get2or4 = () => {
@@ -59,15 +55,16 @@ const getMatrixToRight = (matrix) => {
         }
       }
       if (row[i] === 0 || i === row.length - 1) continue
-      for (let j = 1; j <= row.length - 1 - i; j++) {
-        if (row[i + j] === 0) {
-          row[i + j] = row[i + j] + row[i + j - 1]
-          row[i + j - 1] = 0
+      for (let k = 1; k <= row.length - 1 - i; k++) {
+        if (row[i + k] !== row[i + k - 1] && row[i + k] !== 0) break
+        if (row[i + k] === 0) {
+          row[i + k] = row[i + k] + row[i + k - 1]
+          row[i + k - 1] = 0
           steps[i]++
         }
-        if (row[i + j] === row[i + j - 1] && prev === prevArr[i]) {
-          row[i + j] = row[i + j] + row[i + j - 1]
-          row[i + j - 1] = 0
+        if (row[i + k] === row[i + k - 1] && prev === prevArr[i]) {
+          row[i + k] = row[i + k] + row[i + k - 1]
+          row[i + k - 1] = 0
           steps[i]++
           break
         }
