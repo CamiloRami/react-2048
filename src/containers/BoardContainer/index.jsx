@@ -6,7 +6,7 @@ export default function BoardContainer() {
       <div className="relative grid">
         <div className="grid grid-cols-4 grid-rows-4 gap-4">
           {Array.from({ length: 16 }).map((_, index) => {
-            return <div className="bg-gray-200 rounded-lg p-8" key={index}></div>
+            return <div className="bg-gray-1 rounded-lg p-8" key={index}></div>
           })}
         </div>
         <div className="absolute">
