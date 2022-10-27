@@ -6,9 +6,9 @@ export default function Tile({ position, value }) {
     transform: `translate(${position[0] * 5}rem, ${position[1] * 5}rem)`,
   })
   
-  const [color, setColor] = useState('tile-2')
-
-
+  const color = `bg-tile-${value}`
+  const colorText = value > 16 ? 'text-white' : 'text-black'
+  const fontSize = value > 1000 ? 'text-2xl' : 'text-3xl'
 
   const { game, motion } = useGame()
   
@@ -43,7 +43,7 @@ export default function Tile({ position, value }) {
   }, [motion, game.board, position])
   
   return (
-    <div className="rounded-lg w-16 h-16 grid items-center text-4xl transition absolute" style={positionState}>
+    <div className={`rounded-lg w-16 h-16 grid items-center font-semibold transition absolute ${color} ${colorText} ${fontSize}`} style={positionState}>
       <span className="mb-1">{value}</span>
     </div>
   )
