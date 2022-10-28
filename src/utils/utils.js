@@ -9,6 +9,7 @@ const putRandomValueInMatrix = (matrix, fnValue = Math.random()) => {
     })
     return acc
   }, [])
+  if (emptyPosition.length === 0) return null
   const randomPosition = emptyPosition[Math.floor(Math.random() * emptyPosition.length)]
   deepCopyMatrix[randomPosition.rowIndex][randomPosition.cellIndex] = value
   return deepCopyMatrix
@@ -40,7 +41,7 @@ const initializeBoard = () => {
   return matrixB
 }
 
-const getMatrixToRight = (matrix) => {
+const mergeMatrixToRight = (matrix) => {
   const stepsToMoveToRight = []
   const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
   deepCopyMatrix.forEach((row, rowIndex) => {
@@ -75,7 +76,7 @@ const getMatrixToRight = (matrix) => {
   return [deepCopyMatrix, stepsToMoveToRight]
 }
 
-const getMatrixToLeft = (matrix) => {
+const mergeMatrixToLeft = (matrix) => {
   const stepsToMoveToLeft = []
   const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
   deepCopyMatrix.forEach((row, rowIndex) => {
@@ -109,17 +110,17 @@ const getMatrixToLeft = (matrix) => {
   return [deepCopyMatrix, stepsToMoveToLeft]
 }
 
-const getMatrixToUp = (matrix) => {
+const mergeMatrixToUp = (matrix) => {
   const rotatedMatrixR = rotateMatrix(matrix, 'right')
-  const [newMatrix, steps] = getMatrixToRight(rotatedMatrixR)
+  const [newMatrix, steps] = mergeMatrixToRight(rotatedMatrixR)
   const rotatedMatrixL = rotateMatrix(newMatrix, 'left')
   const stepsToMoveToUp = rotateMatrix(steps, 'left')
   return [rotatedMatrixL, stepsToMoveToUp]
 }
 
-const getMatrixToDown = (matrix) => {
+const mergeMatrixToDown = (matrix) => {
   const rotatedMatrixL = rotateMatrix(matrix, 'left')
-  const [newMatrix, steps] = getMatrixToRight(rotatedMatrixL)
+  const [newMatrix, steps] = mergeMatrixToRight(rotatedMatrixL)
   const rotatedMatrixR = rotateMatrix(newMatrix, 'right')
   const stepsToMoveToDown = rotateMatrix(steps, 'right')
   return [rotatedMatrixR, stepsToMoveToDown]
@@ -131,15 +132,30 @@ const sumEveryCell = (matrix) => {
   }, 0)
 }
 
+const isAnyCellEmpty = (matrix) => {
+  return matrix.some((row) => row.some((cell) => cell === 0))
+}
+
+const isGameOver = (matrix) => {
+  const deepCopyMatrix = JSON.parse(JSON.stringify(matrix))
+  const canMergeToRight = sumEveryCell(mergeMatrixToRight(deepCopyMatrix)[1])
+  const canMergeToLeft = sumEveryCell(mergeMatrixToLeft(deepCopyMatrix)[1])
+  const canMergeToUp = sumEveryCell(mergeMatrixToUp(deepCopyMatrix)[1])
+  const canMergeToDown = sumEveryCell(mergeMatrixToDown(deepCopyMatrix)[1])
+  return canMergeToRight === 0 && canMergeToLeft === 0 && canMergeToUp === 0 && canMergeToDown === 0
+}
+
 const utils = {
   initializeBoard,
   putRandomValueInMatrix,
   get2or4,
-  getMatrixToRight,
-  getMatrixToLeft,
-  getMatrixToUp,
-  getMatrixToDown,
+  mergeMatrixToRight,
+  mergeMatrixToLeft,
+  mergeMatrixToUp,
+  mergeMatrixToDown,
   sumEveryCell,
+  isAnyCellEmpty,
+  isGameOver,
 }
 
 export default utils

@@ -7,11 +7,13 @@ const {
   putRandomValueInMatrix: putTile,
   initializeBoard,
   get2or4,
-  getMatrixToRight,
-  getMatrixToLeft,
-  getMatrixToUp,
-  getMatrixToDown,
+  mergeMatrixToRight,
+  mergeMatrixToLeft,
+  mergeMatrixToUp,
+  mergeMatrixToDown,
   sumEveryCell,
+  isAnyCellEmpty,
+  isGameOver,
 } = utils
 
 const useGame = () => {
@@ -28,7 +30,7 @@ const GameProvider = ({ children }) => {
   const [game, setGame] = useState({
     board: initializeBoard(),
     score: 0,
-    isOver: false,
+    isGameOver: false,
   })
   const [motion, setMotion] = useState({
     isMoving: false,
@@ -37,17 +39,47 @@ const GameProvider = ({ children }) => {
     steps: null
   })
 
-  const moveRight = (board) => {
-    const [newBoard, steps] = getMatrixToRight(board)
-    if (sumEveryCell(steps) === 0) return null
+  const resetGame = () => {
+    setGame({
+      board: initializeBoard(),
+      score: 0,
+      isGameOver: false,
+    })
+  }
+  const mergeFn = {
+    right: mergeMatrixToRight,
+    left: mergeMatrixToLeft,
+    up: mergeMatrixToUp,
+    down: mergeMatrixToDown,
+  }
+
+  const move = (direction, board) => {
+    const [newBoard, steps] = mergeFn[direction](board)
+    if (sumEveryCell(steps) === 0 && isAnyCellEmpty(newBoard)) {
+      return null
+    }
+    if (!isAnyCellEmpty(newBoard) && isGameOver(newBoard)) {
+      setGame({ ...game, isGameOver: true })
+      return null
+    }
     setMotion({ 
       isMoving: true,
-      direction: 'right',
+      direction,
       nextBoard: newBoard,
       steps
     })
     setTimeout(() => {
       const boardInitialized = putTile(newBoard, get2or4())
+      // if (!boardInitialized) {
+      //   setGame({ ...game, isGameOver: true })
+      //   setMotion({
+      //     isMoving: false,
+      //     direction: null,
+      //     nextBoard: null,
+      //     steps: null
+      //   })
+      //   return null
+      // }
       setMotion({ 
         isMoving: false,
         direction: null,
@@ -60,80 +92,11 @@ const GameProvider = ({ children }) => {
     }, ANIMATION_DURATION)
   }
 
-  const moveLeft = (board) => {
-    const [newBoard, steps] = getMatrixToLeft(board)
-    if (sumEveryCell(steps) === 0) return null
-    setMotion({ 
-      isMoving: true, 
-      direction: 'left',
-      nextBoard: newBoard,
-      steps
-    })
-    setTimeout(() => {
-      const boardInitialized = putTile(newBoard, get2or4())
-      setMotion({ 
-        isMoving: false, 
-        direction: null,
-        nextBoard: null,
-        steps: null
-      })
-      setGame(prevState => {
-        return {...prevState, board: boardInitialized}
-      })
-    }, ANIMATION_DURATION)
-  }
-
-  const moveUp = (board) => {
-    const [newBoard, steps] = getMatrixToUp(board)
-    if (sumEveryCell(steps) === 0) return null
-    setMotion({ 
-      isMoving: true, 
-      direction: 'up',
-      nextBoard: newBoard,
-      steps
-    })
-    setTimeout(() => {
-      const boardInitialized = putTile(newBoard, get2or4())
-      setMotion({ 
-        isMoving: false, 
-        direction: null,
-        nextBoard: null,
-        steps: null
-      })
-      setGame(prevState => {
-        return {...prevState, board: boardInitialized}
-      })
-    }, ANIMATION_DURATION)
-  }
-
-  const moveDown = (board) => {
-    const [newBoard, steps] = getMatrixToDown(board)
-    if (sumEveryCell(steps) === 0) return null
-    setMotion({ 
-      isMoving: true, 
-      direction: 'down',
-      nextBoard: newBoard,
-      steps
-    })
-    setTimeout(() => {
-      const boardInitialized = putTile(newBoard, get2or4())
-      setMotion({ 
-        isMoving: false, 
-        direction: null,
-        nextBoard: null,
-        steps: null
-      })
-      setGame(prevState => {
-        return {...prevState, board: boardInitialized}
-      })
-    }, ANIMATION_DURATION)
-  }
-
   const handlerKeyDown = ({ key }, board) => {
-    if (key === 'ArrowRight') moveRight(board)
-    if (key === 'ArrowLeft') moveLeft(board)
-    if (key === 'ArrowUp') moveUp(board)
-    if (key === 'ArrowDown') moveDown(board)
+    if (key === 'ArrowRight') move('right', board)
+    if (key === 'ArrowLeft') move('left', board)
+    if (key === 'ArrowUp') move('up', board)
+    if (key === 'ArrowDown') move('down', board)
   }
 
   const handleKeyDown = useCallback((event) => {
@@ -149,7 +112,7 @@ const GameProvider = ({ children }) => {
     }
   }, [game.board, motion.isMoving])
 
-  return <GameContext.Provider value={{ game, motion }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ game, motion, resetGame }}>{children}</GameContext.Provider>
 }
 
 export { GameProvider, useGame }

@@ -1,13 +1,8 @@
-import { useEffect } from 'react'
 import { useGame } from '../../contexts/GameContext'
 import Tile from '../Tile'
 
 export default function Board() {
   const { game } = useGame()
-
-  useEffect(() => {
-    console.log(game.board)
-  }, [game.board])
 
   const renderBoard = () => {
     return game.board.map((row, rowIndex) => {
