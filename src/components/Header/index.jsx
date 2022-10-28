@@ -1,7 +1,7 @@
 export default function Header() {
   return (
     <header>
-      <h1 className="font-bold text-center pt-8 pb-2 text-5xl">
+      <h1 className="font-bold text-center pt-8 pb-24 text-5xl">
         <span className="text-tile-2">2</span>
         <span className="text-tile-4">0</span>
         <span className="text-tile-8">4</span>

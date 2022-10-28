@@ -3,7 +3,7 @@ import ResetButton from "../../components/ResetButton"
 
 export default function ScoreContainer() {
   return (
-    <div className="flex flex-row justify-between mt-32 w-80">
+    <div className="flex flex-row justify-between w-80 pb-16">
       <Score />
       <ResetButton />
     </div>

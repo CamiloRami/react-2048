@@ -2,7 +2,7 @@ import Board from '../../components/Board'
 
 export default function BoardContainer() {
   return (
-    <div className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center outline-none mb-36">
+    <div className="flex flex-col items-center justify-center w-96 text-center outline-none">
       <div className="relative grid">
         <div className="grid grid-cols-4 grid-rows-4 gap-4">
           {Array.from({ length: 16 }).map((_, index) => {
