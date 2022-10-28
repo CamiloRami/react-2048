@@ -2,12 +2,12 @@ import { useEffect, useState } from "react"
 import { useGame } from "../../contexts/GameContext"
 
 export default function GameOver() {
-  const { game, resetGame } = useGame()
+  const { gameOver, resetGame } = useGame()
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    game.isGameOver ? setShow(true) : setShow(false)
-  }, [game.isGameOver])
+    gameOver ? setShow(true) : setShow(false)
+  }, [gameOver])
 
   if (!show) return null
 

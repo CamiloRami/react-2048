@@ -1,11 +1,12 @@
 import { useContext, createContext, useState, useEffect, useCallback } from 'react'
 import utils from '../utils/utils'
+import useScore from '../hooks/useScore'
+import useBoard from '../hooks/useBoard'
 
 const GameContext = createContext()
 
 const {
   putRandomValueInMatrix: putTile,
-  initializeBoard,
   get2or4,
   mergeMatrixToRight,
   mergeMatrixToLeft,
@@ -27,11 +28,7 @@ const useGame = () => {
 const ANIMATION_DURATION = 160
 
 const GameProvider = ({ children }) => {
-  const [game, setGame] = useState({
-    board: initializeBoard(),
-    score: 0,
-    isGameOver: false,
-  })
+  const [gameOver, setGameOver] = useState(false)
   const [motion, setMotion] = useState({
     isMoving: false,
     direction: null,
@@ -39,12 +36,13 @@ const GameProvider = ({ children }) => {
     steps: null
   })
 
+  const [score, bestScore, resetScore, updateScore] = useScore()
+  const [board, resetBoard, updateBoard] = useBoard()
+
   const resetGame = () => {
-    setGame({
-      board: initializeBoard(),
-      score: 0,
-      isGameOver: false,
-    })
+    setGameOver(false)
+    resetBoard()
+    resetScore()
   }
   const mergeFn = {
     right: mergeMatrixToRight,
@@ -59,7 +57,7 @@ const GameProvider = ({ children }) => {
       return null
     }
     if (!isAnyCellEmpty(newBoard) && isGameOver(newBoard)) {
-      setGame({ ...game, isGameOver: true })
+      setGameOver(true)
       return null
     }
     setMotion({ 
@@ -70,25 +68,14 @@ const GameProvider = ({ children }) => {
     })
     setTimeout(() => {
       const boardInitialized = putTile(newBoard, get2or4())
-      // if (!boardInitialized) {
-      //   setGame({ ...game, isGameOver: true })
-      //   setMotion({
-      //     isMoving: false,
-      //     direction: null,
-      //     nextBoard: null,
-      //     steps: null
-      //   })
-      //   return null
-      // }
       setMotion({ 
         isMoving: false,
         direction: null,
         nextBoard: null,
         steps: null
       })
-      setGame(prevState => {
-        return {...prevState, board: boardInitialized}
-      })
+      updateBoard(boardInitialized)
+      updateScore(sumEveryCell(newBoard))
     }, ANIMATION_DURATION)
   }
 
@@ -100,8 +87,8 @@ const GameProvider = ({ children }) => {
   }
 
   const handleKeyDown = useCallback((event) => {
-    handlerKeyDown(event, game.board)
-  }, [game.board])
+    handlerKeyDown(event, board)
+  }, [board])
 
   useEffect(() => {
     if (!motion.isMoving) {
@@ -110,9 +97,9 @@ const GameProvider = ({ children }) => {
         window.removeEventListener('keydown', handleKeyDown)
       }
     }
-  }, [game.board, motion.isMoving])
+  }, [board, motion.isMoving])
 
-  return <GameContext.Provider value={{ game, motion, resetGame }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ gameOver, board, motion, resetGame, score, bestScore }}>{children}</GameContext.Provider>
 }
 
 export { GameProvider, useGame }
