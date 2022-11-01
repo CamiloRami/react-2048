@@ -1,9 +1,9 @@
+import { useMemo } from 'react'
 import { useGame } from '../../contexts/GameContext'
 import Tile from '../Tile'
 
 export default function Board() {
   const { board } = useGame()
-
   const renderBoard = () => {
     return board.map((row, rowIndex) => {
       return row.map((value, colIndex) => {
@@ -13,7 +13,9 @@ export default function Board() {
     })
   }
 
+  const boardMemo = useMemo(() => renderBoard(), [board])
+
   return <>
-    { board && renderBoard() } 
+    { board && boardMemo } 
   </>
 }

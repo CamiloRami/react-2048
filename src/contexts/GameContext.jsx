@@ -99,7 +99,12 @@ const GameProvider = ({ children }) => {
     }
   }, [board, motion.isMoving])
 
-  return <GameContext.Provider value={{ gameOver, board, motion, resetGame, score, bestScore }}>{children}</GameContext.Provider>
+  const touchMove = useCallback((direction) => {
+    if (motion.isMoving) return
+    move(direction, board)
+  }, [board, motion.isMoving])
+
+  return <GameContext.Provider value={{ gameOver, board, motion, resetGame, score, bestScore, touchMove }}>{children}</GameContext.Provider>
 }
 
 export { GameProvider, useGame }
